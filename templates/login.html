@@ -1,0 +1,83 @@
+{% extends "base_for_sign.html" %}
+
+{% block title %}登入 - 影探{% endblock %}
+  
+{% block style %}
+  /* 登入提交按鈕樣式 */
+  .login-submit-button {
+    width: 100%;
+    background: linear-gradient(135deg, #3d5afe, #5c6bc0);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .login-submit-button:hover {
+    background: linear-gradient(135deg, #5c6bc0, #3d5afe);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(61, 90, 254, 0.3);
+  }
+  
+  .login-submit-button:before {
+    content: "\f090";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-right: 8px;
+  }
+{% endblock %}
+
+{% block main %}  
+  <!-- 表單容器 -->
+  <div class="container">
+    <h2 class="title">
+      <i class="fas fa-user-circle"></i>用戶登入
+    </h2>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('auth.login') }}" method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <div class="form-field">
+            {{ form.user_id.label }}
+            {{ form.user_id(id="user", class="input-field", placeholder="請輸入用戶名") }}
+            {% for message in form.user_id.errors %}
+               <div class="error">{{ message }}</div>
+            {% endfor %}    
+        </div>
+        
+        <div class="form-field">
+            {{ form.password.label }}
+            {{ form.password(id="password", class="input-field", placeholder="請輸入密碼") }}
+            {% for message in form.password.errors %}
+               <div class="error">{{ message }}</div>
+            {% endfor %}
+        </div>
+        
+        <div class="form-field">
+            {{ form.submit(id="submit", class="login-submit-button") }}
+        </div>
+    </form>
+    
+    <div class="sign-link">
+      <p>尚未註冊？<a href="{{ url_for('auth.register') }}">點此註冊</a></p>
+    </div>
+  </div>
+{% endblock %}

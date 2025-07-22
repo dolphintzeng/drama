@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>影探</title>
+
+  <!-- 設定響應式網頁，使手機瀏覽時不會變形(html註解方式，用於head、body區塊)-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Favicon using Font Awesome icon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'><path fill='%233d5afe' d='M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64v64h8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-8v144c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2v256c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z'/></svg>">
+
+  <!-- 引入 Font Awesome 圖示庫，用來顯示圖標(如放大鏡、攝影機) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* 頁面整體樣式(CSS註解方式，用於style區塊)*/
+    body {
+      margin: 0;                /* 外距 */
+      padding: 0;               /* 內距 */
+      background: #121212;    /* 背景顏色 - 黑色 */
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;              /* 文字顏色 - 白色 */
+      display: flex;            /* 使用區塊級彈性容器排列內容 */
+      justify-content: center;  /* 水平置中內容 */
+      align-items: center;      /* 垂直置中內容 */
+      height: 100vh;            /* 佔滿整個螢幕高度 */
+      overflow: hidden;         /* 避免出現捲軸 */
+    }
+
+    /* 登入按鈕樣式 */
+    .login-btn {
+      position: fixed;          /* 在瀏覽器視窗的固定位置 */
+      top: 20px;                /* 右上角距離視窗邊界各20pixels */
+      right: 20px;
+      background: rgba(61, 90, 254, 0.9);
+      color: white;
+      border: none;
+      padding: 10px 20px;       /* 內距 - 上下10px、左右20px */
+      border-radius: 25px;      /* 四角圓角程度 */
+      cursor: pointer;          /* 滑鼠移動到元素上的游標變化 */
+      font-weight: bold;
+      font-size: 14px;
+      transition: all 0.3s ease;      /* 設定變化的項目與時間 */
+      backdrop-filter: blur(6px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      z-index: 1000;            /* 決定堆疊順序，越高越上面 */
+    }
+    /* 滑鼠移到按鈕上時的變化，會搭配上面的transition */
+    .login-btn:hover {
+      background: rgba(92, 107, 192, 0.9);
+      transform: translateY(-2px);  /* 變化方式 - Y軸往上2pixels(網頁往下為正) */
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    /* 登入按鈕內的圖示 */
+    .login-btn i {
+      margin-right: 8px;
+    }
+
+    /* 外層容器，用來包住所有內容 */
+    .container {
+      text-align: center;       /* 文字置中對齊 */
+      position: relative;       /* 元素會依據原本位置微調 */
+    }
+
+    /* 主圖示：攝影機 icon */
+    .video-icon {
+      font-size: 80px;
+      color: #3d5afe;
+      margin-bottom: 20px;
+      animation: pulse 2.5s infinite; /* 套用動畫：閃爍放大縮小 */
+    }
+    /* Keyframes動畫：pulse，讓圖示有脈動感，放大縮小為完整一次 */
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; } /* 變化方式 - 尺寸調整 */
+      50% { transform: scale(1.1); opacity: 0.8; }  /* opacity不透明度 */
+    }
+
+    /* 搜尋框外層樣式 */
+    .search-box {
+      display: flex;                      
+      justify-content: center;
+      align-items: center;
+      background: rgba(40, 40, 40, 0.9);  /* 半透明背景 */
+      backdrop-filter: blur(6px);           /* 模糊效果(玻璃感) */
+      border-radius: 999px;                 /* 超圓角(膠囊形) */
+      padding: 12px 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.6);
+    }
+    /* 搜尋框內的圖示(放大鏡) */
+    .search-box i {
+      font-size: 20px;
+      margin-right: 10px;
+      color: #aaa;
+    }
+    /* 搜尋框輸入欄位 */
+    .search-box input {
+      border: none;               /* 元素邊框 */
+      outline: none;              /* 元素輪廓(在邊框外圍) */
+      background: #2c2c2c;
+      border-radius: 999px;
+      padding: 10px 16px;
+      color: white;
+      font-size: 18px;
+      width: 300px;
+    }
+    /* 搜尋按鈕 */
+    .search-box button {
+      background: #3d5afe;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-left: 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    /* 滑鼠移到按鈕上時的變化 */
+    .search-box button:hover {
+      background: #5c6bc0;
+    }
+
+    /* 手機尺寸(小於480px)時的樣式調整 */
+    @media (max-width: 480px) {
+      .search-box {
+        flex-direction: column; /* 改為垂直排列 */
+        width: 90%;
+      }
+      .search-box input {
+        width: 100%;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+      .search-box button {
+        width: 100%;
+      }
+      /* 手機版登入按鈕調整 */
+      .login-btn {
+        top: 15px;
+        right: 15px;
+        padding: 8px 16px;
+        font-size: 12px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <!-- 登入按鈕 - 固定在右上角 -->
+  <button class="login-btn" onclick="location.href='/login'">
+    <i class="fas fa-user"></i>登入
+  </button>
+  
+  <div class="container">
+    <!-- 中間的攝影機圖示 -->
+    <i class="fas fa-video video-icon"> 影探</i>
+
+    <!-- 搜尋表單，輸入影片關鍵字後送出 -->
+    <form class="search-box" action="/search/">
+      <!-- 放大鏡圖示 -->
+      <i class="fas fa-search"></i>
+
+      <!-- 使用者輸入搜尋關鍵字 -->
+      <input type="text" name="key" placeholder="搜尋影片...">
+
+      <!-- 提交按鈕 -->
+      <button type="submit">搜尋</button>
+    </form>
+  </div>
+</body>
+</html>

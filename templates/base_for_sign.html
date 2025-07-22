@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- 設定響應式網頁，使手機瀏覽時不會變形 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Favicon using Font Awesome icon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'><path fill='%233d5afe' d='M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64v64h8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-8v144c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2v256c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z'/></svg>">
+
+  <!-- 引入 Font Awesome 圖示庫 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- 引入 自製CSS檔案 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">  
+
+  <!-- 可供更改的部分 -->
+  <title>{% block title %}標題{% endblock %}</title>
+  <style>
+    {% block style %}
+      樣式
+    {% endblock %}
+  </style>
+
+</head>
+<body>
+  <!-- 頂部導航區域 -->
+  <div class="header">
+    <a href="/" class="site-branding">
+      <i class="fas fa-video"></i>
+      <div class="brand-text">
+        <div class="brand-title">影探</div>
+      </div>
+    </a>
+  </div>
+  
+  <!-- 返回首頁按鈕 -->
+  <a class="back-link" href="/">
+    <i class="fas fa-arrow-left"></i>返回首頁
+  </a>
+
+<main>
+  {% block main %}
+    主要表單內容
+  {% endblock %}
+</main>
+
+</body>
+</html>
