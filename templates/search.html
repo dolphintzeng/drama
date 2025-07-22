@@ -189,6 +189,8 @@
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));  /* 設定重複建立每行欄位，自動填滿，尺寸範圍 */
       gap: 25px;
       margin-bottom: 40px;
+      justify-content: center;
+      justify-items: center;
     }
     
     /* 影片卡片 */
@@ -211,7 +213,7 @@
     /* 影片縮圖 */
     .video-card img {
       width: 100%;
-      height: 100%;
+      height: 400px;
       object-fit: cover;  /* 針對圖片、影像如何符合該容器 - 根據設定的尺寸縮放並適當切割 */
       transition: transform 0.3s ease;
     }
@@ -343,38 +345,14 @@
         font-size: 14px;
         padding: 12px;
       }
-     /* 預設：圖片裁切，整齊排列 */
-    .video-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-      background-color: #000;
-    }
-    
-    /* 單一結果：不裁剪圖片，顯示完整內容 */
-    .results-grid.single-result {
-      justify-content: center;
-    }
-    
-    .results-grid.single-result .video-card {
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    
-    .results-grid.single-result .video-card img {
-      object-fit: contain;
-    }
-         
-
     }
   </style>
 </head>
 <body>
   <!-- 頂部導航區域 -->
-  <div class="header">
+<div class="header">
     <!-- 頂部搜尋框 -->
-    <form class="header-search" action="/search/">
+    <form class="header-search" action="/search/" method="POST">
       <i class="fas fa-video search-icon"></i>
       <input type="text" name="key" placeholder="搜尋影片..." value="{{ key }}">
       <button type="submit">搜尋</button>
@@ -399,29 +377,33 @@
       <span class="search-keyword">{{ key }}</span> 的搜尋結果
     </h1>
     
-    <!-- 結果網格 -->
-    <div class="results-grid {% if searchList|length == 1 %}single-result{% endif %}">
-      {% for search in searchList %}
-      <div class="video-card">
-        <a href="{{ url_for('main.search_result', title=search.title, url=search.url, pic=search.pic) }}">
-          <img src="{{ search.pic }}" alt="{{ search.title }}" loading="lazy">
-          <div class="title">
-            <span class="video-number">{{ loop.index }}.</span>{{ search.title }}
-          </div>
-        </a>
-      </div>
-      {% endfor %}
-    </div>
-
-    
-    <!-- 如果沒有結果的提示 (可選) -->
-    {% if not searchList %}
-    <div class="no-results">
-      <i class="fas fa-search"></i>
-      <h3>沒有找到相關結果</h3>
-      <p>請嘗試使用不同的關鍵字搜尋</p>
-    </div>
-    {% endif %}
-  </div>
+  	<!-- 結果網格 -->
+  	<div class="results-grid">
+    	{% for search in searchList %}
+   		 <div class="video-card">
+     		 <form action="{{ url_for('main.search_result') }}" method="POST">
+        		<!-- 傳遞資料用 hidden input -->
+       			<input type="hidden" name="title" value="{{ search.title }}">
+      			<input type="hidden" name="url" value="{{ search.url }}">
+        		<input type="hidden" name="pic" value="{{ search.pic }}">
+       			<!-- 點擊圖片提交表單 -->
+        		<button type="submit" style="all: unset; cursor: pointer;">
+          		<img src="{{ search.pic }}" alt="{{ search.title }}" loading="lazy">
+          		<div class="title">
+            		<span class="video-number">{{ loop.index }}.</span>{{ search.title }}
+          		</div>
+        		</button>
+            </form>
+         </div>
+       {% endfor %}
+       <!-- 如果沒有結果的提示 (可選) -->
+    	{% if not searchList: %}
+   		 <div class="no-results">
+    		 <i class="fas fa-search"></i>
+      		<h3>沒有找到相關結果</h3>
+     		<p>請嘗試使用不同的關鍵字搜尋</p>
+  		</div>
+  		{%endif%}
+  		
 </body>
 </html>

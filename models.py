@@ -11,3 +11,18 @@ class User_info(db.Model): #若有進行參數前處理或是要使用位置對�
     token = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.Integer, nullable=True)
     verified = db.Column(db.Boolean, default=False)
+
+class Search_result(db.Model): 
+    key = db.Column(db.String(50), primary_key=True, index=True)
+    title = db.Column(db.String(50), nullable=False)
+    content = db.Column(db.String(300), nullable=False)
+    pic_url = db.Column(db.String(200), nullable=False, unique=True)
+    yt = db.Column(db.String(200), nullable=True)
+    
+    
+class Url_resource(db.Model): 
+    key = db.Column(db.String(50), primary_key=True, index=True)
+    gimy = db.Column(db.String(200), nullable=False)
+    friday = db.Column(db.String(200), nullable=False)
+    duck = db.Column(db.String(200), nullable=False, unique=True)
+    netflix = db.Column(db.String(200), nullable=True)

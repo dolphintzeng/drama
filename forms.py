@@ -16,3 +16,5 @@ class RegisterForm(FlaskForm):
     name = StringField("姓名", validators=[validators.DataRequired("請輸入姓名")])
     email = StringField("Email", validators=[validators.DataRequired("請輸入Email"), validators.Email("請輸入正確格式")])
     submit = SubmitField("提交")
+
+    
