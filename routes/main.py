@@ -1,7 +1,7 @@
-    # routes/main.py
+# routes/main.py
 # 首頁、搜尋、結果頁邏輯
 from flask import Blueprint, render_template, request, redirect,url_for,flash
-from utils.site_crawler import gimyWeb, gimyNextWeb, duckWeb, fridayWeb, fridayNextWeb, youtubWeb
+from utils.site_crawler import gimyWeb, gimyNextWeb, duckWeb, fridayWeb, fridayNextWeb, youtubWeb,storeTodb,checkDB
 from flask_login import login_required, current_user
 
 # 引用使用者資料
@@ -23,6 +23,7 @@ def search():
             searchList = fridayWeb(search_key, 2)
         return render_template("search.html", searchList=searchList, key=search_key)
     return redirect(url_for("main.index"))
+
 @main_bp.route("/search/result/",methods=['POST','GET'])
 def search_result():
     if request.method == 'POST':
@@ -32,35 +33,40 @@ def search_result():
 
         title = content = ''
         gimy = friday = None
-    
-        if "gimy" in url:
-            result = gimyNextWeb(url)
-            if result:
-                title, content = result
-            gimy = url
-            friday_result = fridayWeb(target)
-            friday = friday_result[0]["url"] if friday_result else None
-    
-        elif "friday" in url:
-            result = fridayNextWeb(url)
-            if result:
-                title, content = result
-            friday = url
-    
-        yt = youtubWeb(target)
-        result_data = {
-            "title": title,
-            "content": content,
-            "pic": pic_url,
-            "yt": yt
-        }
-        url_sources = {
-            "gimy": gimy,
-            "friday": friday,
-            "duck": duckWeb(target),
-            "netflix": "https://www.netflix.com/tw/title/81040344"
-        }
-
+        if not checkDB(target):
+            print("DB裡沒有要從網頁搜尋")    
+            if "gimy" in url:
+                result = gimyNextWeb(url)
+                if result:
+                    title, content = result
+                gimy = url
+                friday_result = fridayWeb(target)
+                friday = friday_result[0]["url"] if friday_result else None
+        
+            elif "friday" in url:
+                result = fridayNextWeb(url)
+                if result:
+                    title, content = result
+                friday = url
+        
+            yt = youtubWeb(target)
+            result_data = {
+                "title": title,
+                "content": content,
+                "pic": pic_url,
+                "yt": yt
+            }
+            url_sources = {
+                "gimy": gimy,
+                "friday": friday,
+                "duck": duckWeb(target),
+                "netflix": "https://www.netflix.com/tw/title/81040344"
+            }
+            storeTodb(target,result_data,url_sources)
+        else:
+            result_data, url_sources=checkDB(target)
+            print(result_data)
+            print(url_sources)
         return render_template("search_result.html", result=result_data, url=url_sources)
     return redirect(url_for("main.search"))
 

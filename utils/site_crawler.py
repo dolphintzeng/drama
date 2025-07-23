@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 import requests
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from extensions import db
+from models import Search_result,Url_resource
 
 @contextmanager
 def browser_context():
@@ -114,3 +116,51 @@ def youtubWeb(target):
         yt_element = browser.find_elements(By.CSS_SELECTOR,"a#video-title")[0]
         final_url = yt_element.get_attribute("href")
     return final_url
+
+def storeTodb(target,result_data,url_sources):
+    print("===============================",target)
+    key = Search_result.query.filter_by(keyword=target).first()
+    if not key:
+        new_keyword = Search_result(
+                        keyword=target,
+                        title=result_data["title"],
+                        content=result_data["content"],
+                        pic_url=result_data["pic"],
+                        yt=result_data["yt"]
+                    )
+        db.session.add(new_keyword)
+        db.session.commit()             
+              
+        new_Url = Url_resource(
+                    keyword = target,
+                    gimy = url_sources["gimy"],
+                    friday = url_sources["friday"],
+                    duck = url_sources["duck"],
+                    netflix = url_sources["netflix"]
+                    )
+        db.session.add(new_Url)
+        db.session.commit()
+    
+def checkDB(target):
+    searchResult = Search_result.query.filter_by(keyword=target).first()
+    if searchResult:
+        DB_result_data = {
+            "title": searchResult.title,
+            "content": searchResult.content,
+            "pic": searchResult.pic_url,
+            "yt": searchResult.yt
+        }
+        
+        urlResult = Url_resource.query.filter_by(keyword=target).first()
+        DB_url_sources = {
+            "gimy": urlResult.gimy,
+            "friday": urlResult.friday,
+            "duck": urlResult.duck,
+            "netflix": "https://www.netflix.com/tw/title/81040344"
+        }
+        return DB_result_data,DB_url_sources
+    else:
+        return None
+        
+    
+    

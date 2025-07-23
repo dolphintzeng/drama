@@ -23,16 +23,16 @@ class Comment(db.Model):
     author = db.relationship("User_info", backref="comments")
 
 class Search_result(db.Model): 
-    key = db.Column(db.String(50), primary_key=True, index=True)
+    keyword = db.Column(db.String(50), primary_key=True, index=True, nullable=False)
     title = db.Column(db.String(50), nullable=False)
-    content = db.Column(db.String(300), nullable=False)
-    pic_url = db.Column(db.String(200), nullable=False, unique=True)
-    yt = db.Column(db.String(200), nullable=True)
+    content = db.Column(db.String(300), nullable=True)
+    pic_url = db.Column(db.String(200), nullable=True, unique=True)
+    yt = db.Column(db.String(200), nullable=True, unique=True)
     
     
 class Url_resource(db.Model): 
-    key = db.Column(db.String(50), primary_key=True, index=True)
-    gimy = db.Column(db.String(200), nullable=False)
-    friday = db.Column(db.String(200), nullable=False)
-    duck = db.Column(db.String(200), nullable=False, unique=True)
+    keyword = db.Column(db.String(50), primary_key=True, index=True)
+    gimy = db.Column(db.String(200), nullable=True, unique=True)
+    friday = db.Column(db.String(200), nullable=True, unique=True)
+    duck = db.Column(db.String(200), nullable=True, unique=True)
     netflix = db.Column(db.String(200), nullable=True)
