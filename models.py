@@ -1,6 +1,7 @@
 # models.py
 # 建立 SQLAlchemy models 資料表物件
 from extensions import db
+from datetime import datetime
 
 # 會員資料表物件
 class User_info(db.Model): #若有進行參數前處理或是要使用位置對應法，需自定義__init__
@@ -11,6 +12,15 @@ class User_info(db.Model): #若有進行參數前處理或是要使用位置對�
     token = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.Integer, nullable=True)
     verified = db.Column(db.Boolean, default=False)
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    movie = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    time = db.Column(db.DateTime, default=datetime.now)
+
+    author_id = db.Column(db.String(100), db.ForeignKey("user_info.user_id"), nullable=False)
+
+    author = db.relationship("User_info", backref="comments")
 
 class Search_result(db.Model): 
     key = db.Column(db.String(50), primary_key=True, index=True)

@@ -571,7 +571,10 @@
   <!-- 登入按鈕 -->
   {% if current_user.is_authenticated %}
   <button class="login-btn" onclick="location.href='/logout'">
-    <i class="fas fa-user-check"></i>{{ current_user.name }}
+   <!--  oscar modify
+   <i class="fas fa-user-check"></i>{{ current_user.name }}-->
+    <i class="fas fa-user-check"></i>{{ current_user.user_id }}
+
   </button>
   {% else %}
   <button class="login-btn" onclick="location.href='/login'">
@@ -645,23 +648,41 @@
     
     <!-- 留言板區域 -->
     <div class="comments-section">
-      <h2 class="comments-title">
-        <i class="fas fa-comments"></i>留言板
-      </h2>
+  <h2 class="comments-title">
+    <i class="fas fa-comments"></i>留言板
+  </h2>
+
+    {% if is_authenticated %}
+    <!-- 登入使用者的留言表單 -->
+    <form action="{{ url_for('main.comment') }}" method="POST" class="comment-form">
+      <input type="hidden" name="movie" value="{{ result.title }}">
+      <input type="hidden" name="url" value="{{ url['gimy'] or url['friday'] }}">
+      <input type="hidden" name="pic" value="{{ result.pic }}">
+      <textarea name="content" id="commentText" placeholder="分享您對這部影片的想法..." required></textarea>
+      <button type="submit">
+        <i class="fas fa-paper-plane"></i>發布留言
+      </button>
+    </form>
+  {% else %}
+    <!-- 尚未登入提示 -->
+    <div class="login-prompt show" id="loginPrompt">
+      <i class="fas fa-info-circle"></i>請先登入才能發表留言
+    </div>
+  {% endif %}
       
       <!-- 登入提示 -->
-      {% if not is_authenticated %}
+      <!--{% if not is_authenticated %}
       <div class="login-prompt show" id="loginPrompt">
         <i class="fas fa-info-circle"></i>請先登入才能發表留言
       </div>
-      {% endif %}
+      {% endif %} -->
       
-      <div class="comment-form">
+      <!--<div class="comment-form">
         <textarea id="commentText" placeholder="分享您對這部影片的想法..."></textarea>
         <button type="button" id="submitComment">
           <i class="fas fa-paper-plane"></i>發布留言
         </button>
-      </div>
+      </div>-->
       
       <!-- 沒有留言時的提示 -->
       {% if comments|length == 0 %}
@@ -671,15 +692,15 @@
       </div>
       {% else %}
       <div class="comments-list show">
-        {% for comment in comments %}
+      {% for comment in comments %}
         <div class="comment-item">
           <div class="comment-header">
-            <span class="comment-author">{{ comment.author }}</span>
-            <span class="comment-time">{{ comment.time }}</span>
+            <span class="comment-author">{{ comment.author.user_id }}</span>
+            <span class="comment-time">{{ comment.time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
           </div>
           <div class="comment-content">{{ comment.content }}</div>
         </div>
-        {% endfor %}
+      {% endfor %}
       </div>
       {% endif %}
     </div>

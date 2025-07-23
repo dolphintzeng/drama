@@ -1,7 +1,12 @@
-# routes/main.py
+    # routes/main.py
 # 首頁、搜尋、結果頁邏輯
-from flask import Blueprint, render_template, request, redirect,url_for
+from flask import Blueprint, render_template, request, redirect,url_for,flash
 from utils.site_crawler import gimyWeb, gimyNextWeb, duckWeb, fridayWeb, fridayNextWeb, youtubWeb
+from flask_login import login_required, current_user
+
+# 引用使用者資料
+from models import Comment, User_info
+from extensions import db
 
 main_bp = Blueprint("main", __name__)
 
@@ -58,3 +63,29 @@ def search_result():
 
         return render_template("search_result.html", result=result_data, url=url_sources)
     return redirect(url_for("main.search"))
+
+@main_bp.route("/comment", methods=["POST"])
+@login_required
+def comment():
+    movie = request.form.get("movie")
+    content = request.form.get("content")
+    url = request.form.get("url")
+    pic = request.form.get("pic")
+
+    if not content.strip():
+        flash("留言不得為空")
+        return redirect(url_for("main.search_result", title=movie, url=url, pic=pic))
+
+    # 根據 current_user.id 取得 User_info
+    user = User_info.query.filter_by(user_id=current_user.get_id()).first()
+    
+    if not user:
+        flash("使用者資料錯誤")
+        return redirect(url_for("main.search_result", title=movie, url=url, pic=pic))
+
+    new_comment = Comment(movie=movie, content=content, author=user)
+    db.session.add(new_comment)
+    db.session.commit()
+
+    flash("留言成功")
+    return redirect(url_for("main.search_result", title=movie, url=url, pic=pic))
