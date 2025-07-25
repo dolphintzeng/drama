@@ -3,7 +3,7 @@
 from flask import Blueprint, render_template, request, redirect,url_for,flash
 from utils.site_crawler import gimyWeb, gimyNextWeb, duckWeb, fridayWeb, fridayNextWeb, youtubWeb,storeTodb,checkDB
 from flask_login import login_required, current_user
-
+from utils.netflix import netflixWeb
 # 引用使用者資料
 from models import Comment, User_info
 from extensions import db
@@ -34,7 +34,7 @@ def search_result():
         title = content = ''
         gimy = friday = None
         if not checkDB(target):
-            print("DB裡沒有要從網頁搜尋")    
+            print("DB裡沒有要從網頁搜尋")
             if "gimy" in url:
                 result = gimyNextWeb(url)
                 if result:
@@ -42,13 +42,13 @@ def search_result():
                 gimy = url
                 friday_result = fridayWeb(target)
                 friday = friday_result[0]["url"] if friday_result else None
-        
+
             elif "friday" in url:
                 result = fridayNextWeb(url)
                 if result:
                     title, content = result
                 friday = url
-        
+
             yt = youtubWeb(target)
             result_data = {
                 "title": title,
@@ -56,17 +56,16 @@ def search_result():
                 "pic": pic_url,
                 "yt": yt
             }
+            netflix_url = netflixWeb(target)
             url_sources = {
                 "gimy": gimy,
                 "friday": friday,
                 "duck": duckWeb(target),
-                "netflix": "https://www.netflix.com/tw/title/81040344"
+                "netflix": netflix_url
             }
             storeTodb(target,result_data,url_sources)
         else:
             result_data, url_sources=checkDB(target)
-            print(result_data)
-            print(url_sources)
         return render_template("search_result.html", result=result_data, url=url_sources)
     return redirect(url_for("main.search"))
 
@@ -84,7 +83,7 @@ def comment():
 
     # 根據 current_user.id 取得 User_info
     user = User_info.query.filter_by(user_id=current_user.get_id()).first()
-    
+
     if not user:
         flash("使用者資料錯誤")
         return redirect(url_for("main.search_result", title=movie, url=url, pic=pic))

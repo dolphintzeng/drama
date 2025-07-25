@@ -657,7 +657,7 @@
     <i class="fas fa-comments"></i>留言板
   </h2>
 
-    {% if is_authenticated %}
+    {% if current_user.is_authenticated %}
     <!-- 登入使用者的留言表單 -->
     <form action="{{ url_for('main.comment') }}" method="POST" class="comment-form">
       <input type="hidden" name="movie" value="{{ result.title }}">
