@@ -12,6 +12,7 @@ class User_info(db.Model): #若有進行參數前處理或是要使用位置對�
     token = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.Integer, nullable=True)
     verified = db.Column(db.Boolean, default=False)
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     movie = db.Column(db.String(255), nullable=False)
@@ -22,15 +23,15 @@ class Comment(db.Model):
 
     author = db.relationship("User_info", backref="comments")
 
-class Search_result(db.Model): 
+class Search_result(db.Model):
     keyword = db.Column(db.String(50), primary_key=True, index=True, nullable=False)
     title = db.Column(db.String(50), nullable=False)
     content = db.Column(db.String(300), nullable=True)
     pic_url = db.Column(db.String(200), nullable=True, unique=True)
     yt = db.Column(db.String(200), nullable=True, unique=True)
-    
-    
-class Url_resource(db.Model): 
+
+
+class Url_resource(db.Model):
     keyword = db.Column(db.String(50), primary_key=True, index=True)
     gimy = db.Column(db.String(200), nullable=True, unique=True)
     friday = db.Column(db.String(200), nullable=True, unique=True)

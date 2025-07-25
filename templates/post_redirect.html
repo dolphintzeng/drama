@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Redirecting...</title>
+  <script>
+    window.onload = function() {
+      document.getElementById('redirectForm').submit();
+    }
+  </script>
+</head><!-- getElementById設定對應id的值，其submit觸發window.onload能確保表格載入後能快速提交 -->
+
+<body>
+  <form id="redirectForm" action="{{ action }}" method="POST">
+    {% if key %}
+      <input type="hidden" name="key" value="{{ key | safe }}">
+    {% endif %}
+    {% if title %}
+      <input type="hidden" name="title" value="{{ title | safe }}">
+    {% endif %}
+    {% if url %}
+      <input type="hidden" name="url" value="{{ url | safe }}">
+    {% endif %}
+    {% if pic %}
+      <input type="hidden" name="pic" value="{{ pic | safe }}">
+    {% endif %}
+  </form>
+  <p>Redirecting...</p>
+</body>
+</html>

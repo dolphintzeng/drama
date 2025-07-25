@@ -1,8 +1,8 @@
 {% extends "base_for_sign.html" %}
 
 {% block title %}訊息 - 影探{% endblock %}
-  
-{% block style %}    
+
+{% block style %}
   /* 訊息內容樣式 */
   .message {
     font-size: 16px;
@@ -10,23 +10,23 @@
     margin: 15px 0;
     line-height: 1.8;
   }
-  
+
   .message strong {
     color: #fff;
     font-weight: bold;
   }
-  
+
   .message a {
     color: #3d5afe;
     text-decoration: none;
     font-weight: bold;
     transition: color 0.3s ease;
   }
-  
+
   .message a:hover {
     color: #5c6bc0;
   }
-  
+
   /* 按鈕樣式 */
   .action-button {
     display: inline-block;
@@ -41,25 +41,25 @@
     transition: all 0.3s ease;
     margin: 10px 0;
   }
-  
+
   .action-button:hover {
     background: linear-gradient(135deg, #2ecc71, #27ae60);
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
   }
-  
+
   .action-button i {
     margin-right: 8px;
   }
 {% endblock %}
 
-{% block main %}  
+{% block main %}
   <!-- 表單容器 -->
   <div class="container">
     <h2 class="title">
       <i class="fas fa-envelope"></i>驗證訊息
     </h2>
-    
+
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul class="flashes">
@@ -69,10 +69,10 @@
             </ul>
         {% endif %}
     {% endwith %}
-    
+
     <p class="message">驗證信已寄至：<strong>{{ email }}</strong></p>
     <p class="message">
-      <a href="{{ url_for('auth.login') }}" class="action-button">
+      <a href="{{ url_for('auth.login') }}"class="action-button" style="color: #ffffff;">
         <i class="fas fa-sign-in-alt"></i>我已完成驗證，前往登入
       </a>
     </p>

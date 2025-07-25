@@ -13,3 +13,4 @@ class Config: # 補上預設值避免 .env 遺失時錯誤
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 465
     MAIL_USE_SSL = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False #加入這行設定以清除SQLAlchemy警告，提升效能

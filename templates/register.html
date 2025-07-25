@@ -57,7 +57,7 @@
         
         <div class="form-field">
             {{ form.user_id.label }}
-            {{ form.user_id(id="user", class="input-field", placeholder="請輸入用戶名") }}
+            {{ form.user_id(class="input-field", placeholder="請輸入用戶名") }}
             {% for message in form.user_id.errors %}
                 <div class="error">{{ message }}</div>
             {% endfor %}    
@@ -65,7 +65,7 @@
         
         <div class="form-field">
             {{ form.password.label }}
-            {{ form.password(id="password", class="input-field", placeholder="請輸入密碼") }}
+            {{ form.password(class="input-field", placeholder="請輸入密碼") }}
             {% for message in form.password.errors %}
                 <div class="error">{{ message }}</div>
             {% endfor %}
@@ -73,7 +73,7 @@
         
         <div class="form-field">
             {{ form.name.label }}
-            {{ form.name(id="name", class="input-field", placeholder="請輸入真實姓名") }}
+            {{ form.name(class="input-field", placeholder="請輸入真實姓名") }}
             {% for message in form.name.errors %}
                 <div class="error">{{ message }}</div>
             {% endfor %}    
@@ -81,14 +81,14 @@
         
         <div class="form-field">
             {{ form.email.label }}
-            {{ form.email(id="email", class="input-field", placeholder="請輸入電子郵件") }}
+            {{ form.email(class="input-field", placeholder="請輸入電子郵件") }}
             {% for message in form.email.errors %}
                 <div class="error">{{ message }}</div>
             {% endfor %}
         </div>
         
         <div class="form-field">
-            {{ form.submit(id="submit", class="register-submit-button") }}
+            {{ form.submit(class="register-submit-button") }}
         </div>
     </form>
     

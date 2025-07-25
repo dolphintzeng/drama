@@ -78,7 +78,7 @@
 
     /* 搜尋框外層樣式 */
     .search-box {
-      display: flex;                      
+      display: flex;
       justify-content: center;
       align-items: center;
       background: rgba(40, 40, 40, 0.9);  /* 半透明背景 */
@@ -147,11 +147,20 @@
   </style>
 </head>
 <body>
-  <!-- 登入按鈕 - 固定在右上角 -->
-  <button class="login-btn" onclick="location.href='/login'">
-    <i class="fas fa-user"></i>登入
-  </button>
-  
+  <!-- 登入 / 登出按鈕 - 固定在右上角 -->
+  {% if current_user.is_authenticated %}
+    <button class="login-btn" onclick="location.href='{{ url_for("auth.logout") }}'">
+      你好，{{ current_user.name }}<br>
+      <i class="fas fa-sign-out"></i>登出
+    </button>
+  {% else %}
+    <button class="login-btn" onclick="location.href='{{ url_for("auth.login", next=request.url) }}'">
+      <i class="fas fa-user"></i>登入
+    </button>
+  {% endif %}
+  <!-- 透過request.endpoint就可以取得最後請求的function名，此處為main.home -->
+  <!-- 透過request.url則可以當前完整url包含參數 -->
+
   <div class="container">
     <!-- 中間的攝影機圖示 -->
     <i class="fas fa-video video-icon"> 影探</i>
@@ -162,7 +171,7 @@
       <i class="fas fa-search"></i>
 
       <!-- 使用者輸入搜尋關鍵字 -->
-      <input type="text" name="key" placeholder="搜尋影片...">
+      <input type="text" name="key" placeholder="搜尋影片..." required>
 
       <!-- 提交按鈕 -->
       <button type="submit">搜尋</button>

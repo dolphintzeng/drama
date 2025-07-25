@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>註冊驗證 - 影探</title>
-  
+
   <!-- 設定響應式網頁，使手機瀏覽時不會變形 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -18,7 +18,7 @@
     * {
       box-sizing: border-box;
     }
-    
+
     /* 頁面整體樣式 */
     body {
       margin: 0;
@@ -33,7 +33,7 @@
       align-items: center;
       justify-content: center;
     }
-    
+
     /* 頂部導航區域 */
     .header {
       position: fixed;
@@ -49,7 +49,7 @@
       justify-content: center;
       align-items: center;
     }
-    
+
     /* 網站標題和圖示 */
     .site-branding {
       display: flex;
@@ -60,35 +60,35 @@
       font-weight: bold;
       transition: all 0.3s ease;
     }
-    
+
     .site-branding:hover {
       color: #5c6bc0;
       transform: translateY(-1px);
     }
-    
+
     .site-branding i {
       margin-right: 12px;
       font-size: 28px;
     }
-    
+
     .site-branding .brand-text {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
     }
-    
+
     .site-branding .brand-title {
       font-size: 24px;
       line-height: 1;
       margin-bottom: 2px;
     }
-    
+
     .site-branding .brand-subtitle {
       font-size: 12px;
       color: #aaa;
       font-weight: normal;
     }
-    
+
     /* 返回首頁按鈕 */
     .back-link {
       position: fixed;
@@ -106,18 +106,18 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
       z-index: 1000;
     }
-    
+
     .back-link:hover {
       background: rgba(61, 90, 254, 0.9);
       color: white;
       transform: translateY(-2px);
       box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
-    
+
     .back-link i {
       margin-right: 8px;
     }
-    
+
     /* 表單容器 */
     .container {
       background: rgba(40, 40, 40, 0.9);
@@ -130,7 +130,7 @@
       width: 100%;
       margin: 0 20px;
     }
-    
+
     /* 容器標題 */
     .title {
       font-size: 32px;
@@ -142,11 +142,11 @@
       align-items: center;
       justify-content: center;
     }
-    
+
     .title i {
       margin-right: 12px;
     }
-    
+
     /* 訊息內容樣式 */
     .message {
       font-size: 16px;
@@ -154,23 +154,23 @@
       margin: 15px 0;
       line-height: 1.8;
     }
-    
+
     .message strong {
       color: #fff;
       font-weight: bold;
     }
-    
+
     .message a {
       color: #3d5afe;
       text-decoration: none;
       font-weight: bold;
       transition: color 0.3s ease;
     }
-    
+
     .message a:hover {
       color: #5c6bc0;
     }
-    
+
     /* 按鈕樣式 */
     .action-button {
       display: inline-block;
@@ -185,77 +185,77 @@
       transition: all 0.3s ease;
       margin: 10px 0;
     }
-    
+
     .action-button:hover {
       background: linear-gradient(135deg, #2ecc71, #27ae60);
       transform: translateY(-2px);
       box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
     }
-    
+
     .action-button i {
       margin-right: 8px;
     }
-    
+
     /* 手機版樣式調整 */
     @media (max-width: 768px) {
       body {
         padding-top: 70px;
       }
-      
+
       .header {
         padding: 10px 0;
       }
-      
+
       .site-branding {
         font-size: 20px;
       }
-      
+
       .site-branding i {
         font-size: 24px;
       }
-      
+
       .site-branding .brand-title {
         font-size: 20px;
       }
-      
+
       .site-branding .brand-subtitle {
         font-size: 10px;
       }
-      
+
       .back-link {
         top: 15px;
         left: 15px;
         padding: 8px 16px;
         font-size: 12px;
       }
-      
+
       .container {
         padding: 30px 20px;
         margin: 0 15px;
       }
-      
+
       .title {
         font-size: 24px;
       }
     }
-    
+
     @media (max-width: 480px) {
       .site-branding {
         font-size: 18px;
       }
-      
+
       .site-branding i {
         font-size: 22px;
       }
-      
+
       .site-branding .brand-title {
         font-size: 18px;
       }
-      
+
       .container {
         padding: 25px 15px;
       }
-      
+
       .title {
         font-size: 20px;
       }
@@ -273,17 +273,17 @@
     </a>
   </div>
 
-  
+
   <!-- 表單容器 -->
   <div class="container">
     <h2 class="title">
       <i class="fas fa-envelope"></i>註冊驗證
     </h2>
-    
+
     <p class="message">親愛的 <strong>{{ user_name }}</strong>，</p>
     <p class="message">感謝您註冊我們的服務！請在10分鐘內點擊以下按鈕完成驗證：</p>
     <p class="message">
-      <a href="{{ verify_url }}" class="action-button">
+      <a href="{{ verify_url }}" class="action-button" style="color: #ffffff;">
         <i class="fas fa-check-circle"></i>驗證我的帳戶
       </a>
     </p>
