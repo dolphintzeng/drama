@@ -20,7 +20,7 @@ def browser_context():
         yield browser
     finally:
         browser.quit()
-        
+
 def gimyWeb(search_key):
     searchList = []
     url = f"https://gimy.ai/search/-------------.html?wd={search_key}"
@@ -54,10 +54,10 @@ def gimyNextWeb(url):
             content=content_gimy.text
         else:
             content=''
-        result=[title,content]    
+        result=[title,content]
     return result
 
-        
+
 def duckWeb(search_key):
     search_url = f"https://777tv.ai/index.php/vod/search.html?wd={search_key}"
     with browser_context() as browser:
@@ -96,7 +96,7 @@ def fridayWeb(search_key,times=1):
 
 def fridayNextWeb(url):
     result=[]
-    with browser_context() as browser:        
+    with browser_context() as browser:
         browser.get(url)
         pageSource = browser.page_source
         soup_fri = BeautifulSoup(pageSource,"html.parser")
@@ -112,7 +112,7 @@ def youtubWeb(target):
     with browser_context() as browser:
         browser.get(yt_search)
         WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "video-title")))
-        
+
         yt_element = browser.find_elements(By.CSS_SELECTOR,"a#video-title")[0]
         final_url = yt_element.get_attribute("href")
     return final_url
@@ -129,8 +129,8 @@ def storeTodb(target,result_data,url_sources):
                         yt=result_data["yt"]
                     )
         db.session.add(new_keyword)
-        db.session.commit()             
-              
+        db.session.commit()
+
         new_Url = Url_resource(
                     keyword = target,
                     gimy = url_sources["gimy"],
@@ -140,7 +140,7 @@ def storeTodb(target,result_data,url_sources):
                     )
         db.session.add(new_Url)
         db.session.commit()
-    
+
 def checkDB(target):
     searchResult = Search_result.query.filter_by(keyword=target).first()
     if searchResult:
@@ -150,17 +150,17 @@ def checkDB(target):
             "pic": searchResult.pic_url,
             "yt": searchResult.yt
         }
-        
+
         urlResult = Url_resource.query.filter_by(keyword=target).first()
-        DB_url_sources = {
-            "gimy": urlResult.gimy,
-            "friday": urlResult.friday,
-            "duck": urlResult.duck,
-            "netflix": "https://www.netflix.com/tw/title/81040344"
-        }
+        if urlResult:
+            DB_url_sources = {
+                "gimy": urlResult.gimy,
+                "friday": urlResult.friday,
+                "duck": urlResult.duck,
+                "netflix": urlResult.netflix
+            }
         return DB_result_data,DB_url_sources
     else:
         return None
-        
-    
-    
+
+

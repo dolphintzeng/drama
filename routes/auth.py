@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from extensions import db, login_manager
-from models import User_info
+from models import User_info, Comment
 from forms import LoginForm, RegisterForm
 from utils.user_helper import generate_token, current_timestamp, send_mail
 
@@ -38,6 +38,7 @@ def prelogin():
     session["title"] = request.form.get("title")
     session["url"] = request.form.get("url")
     session["pic"] = request.form.get("pic")
+    session["content"] = request.form.get("content")
     return redirect(url_for("auth.login"))
 
 @auth_bp.route("/login", methods=["GET", "POST"])
@@ -57,15 +58,23 @@ def login():
             user_obj = User(id=user.user_id, name=user.name)
             login_user(user_obj)
 
-            next_page = session.pop("next", None)
-            if next_page == "search":
-                key = session.pop("key", "")
-                return render_template("post_redirect.html", action=url_for("main.search"), key=key) #redirect只能以GET傳參數，改成導向模板搭配JS以POST傳參數
-            elif next_page == "search_result":
-                title = session.pop("title", "")
-                url = session.pop("url", "")
-                pic = session.pop("pic", "")
-                return render_template("post_redirect.html", action=url_for("main.search_result"), title=title, url=url, pic=pic)
+            next = session.pop("next", None)
+            key = session.pop("key", "")
+            title = session.pop("title", "")
+            url = session.pop("url", "")
+            pic = session.pop("pic", "")
+            content = session.pop("content", "")
+            if content:
+                try:
+                    # 加入留言資料表
+                    new_comment = Comment(movie=title, content=content, author_id=current_user.id)
+                    db.session.add(new_comment)
+                    db.session.commit()
+                except SQLAlchemyError as e:
+                    db.session.rollback()
+                    flash(f"資料庫錯誤，請稍後再試：{str(e)}")
+                #redirect只能以GET傳參數，改成導向模板搭配JS以POST傳參數
+                return render_template("post_redirect.html", action=next, key=key, title=title, url=url, pic=pic)
             else:
                 return redirect(url_for("main.index"))
     return render_template("login.html", form=form)
@@ -166,11 +175,14 @@ def verify(token):
     session.pop("pending_user", None)
     return redirect(url_for("auth.login"))
 
-@auth_bp.route("/logout")
+@auth_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
-    user_id = current_user.get_id()
-    user = User_info.query.filter_by(user_id=user_id).first()
+    next = request.form.get("next")
+    key = request.form.get("key")
+    title = request.form.get("title")
+    url = request.form.get("url")
+    pic = request.form.get("pic")
+    flash(f"{current_user.name}，下次再見！")
     logout_user()
-    flash(f"{user.name}，下次再見！")
-    return redirect(url_for("auth.login"))
+    return render_template("post_redirect.html", action=next, key=key, title=title, url=url, pic=pic)

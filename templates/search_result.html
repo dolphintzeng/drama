@@ -570,13 +570,19 @@
 
   <!-- 登入 / 登出按鈕 - 固定在右上角 -->
   {% if current_user.is_authenticated %}
-    <button class="login-btn" onclick="location.href='{{ url_for("auth.logout") }}'">
-      你好，{{ current_user.name }}<br>
-      <i class="fas fa-sign-out"></i>登出
-    </button>
+    <form action="{{ url_for('auth.logout') }}" method="POST">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <input type="hidden" name="url" value="{{ request.form.get('url') }}">
+      <input type="hidden" name="pic" value="{{ request.form.get('pic') }}">
+      <input type="hidden" name="title" value="{{ request.form.get('title') }}">
+      <button type="submit" class="login-btn">
+        你好，{{ current_user.name }}<br>
+        <i class="fas fa-sign-out"></i>登出
+      </button>
+    </form>
   {% else %}
-    <form action="{{ url_for('auth.prelogin') }}" method="POST" >
-      <input type="hidden" name="next" value="search_result">
+    <form action="{{ url_for('auth.prelogin') }}" method="POST">
+      <input type="hidden" name="next" value="{{ request.path }}">
       <input type="hidden" name="url" value="{{ request.form.get('url') }}">
       <input type="hidden" name="pic" value="{{ request.form.get('pic') }}">
       <input type="hidden" name="title" value="{{ request.form.get('title') }}">
@@ -585,10 +591,12 @@
       </button>
     </form>
   {% endif %}
+  <!-- 程式端接收的參數也都在request中，透過request.form.get('url')就可取得與程式端相同的值，就不用額外建立參數傳值 -->
   <!-- 透過request.url則可以當前完整url包含參數 -->
 
   <!-- 主要內容 -->
   <div class="main-content">
+
     <!-- 影片詳情區域 -->
     <div class="movie-detail">
       <div class="movie-header">
@@ -610,105 +618,103 @@
       <h2 class="platforms-title">
         <i class="fas fa-tv"></i>觀看平台
       </h2>
-
       <!-- 付費平台 -->
       <div class="platform-category paid-platform">
         <h3 class="category-title">
           <i class="fas fa-credit-card"></i>付費平台
         </h3>
         <div class="platform-links">
-          {% if url['netflix']: %}
-          <a href="{{ url['netflix'] }}" class="platform-link">
-            <i class="fab fa-netflix"></i>Netflix
-          </a>
-          {%endif%}
-          {% if url['friday']: %}
-          <a href="{{ url['friday'] }}" class="platform-link">
-            <i class="fab fa-netflix"></i>Friday
-          </a>
-          {%endif%}
+          {% if url['netflix'] %}
+            <a href="{{ url['netflix'] }}" class="platform-link">
+              <i class="fab fa-netflix"></i>Netflix
+            </a>
+          {% endif %}
+          {% if url['friday'] %}
+            <a href="{{ url['friday'] }}" class="platform-link">
+              <i class="fab fa-netflix"></i>Friday
+            </a>
+          {% endif %}
         </div>
       </div>
-
       <!-- 免費平台 -->
       <div class="platform-category">
         <h3 class="category-title">
           <i class="fas fa-gift"></i>免費平台
         </h3>
         <div class="platform-links">
-         {% if url['gimy']: %}
-          <a href="{{ url['gimy'] }}" class="platform-link">
-            <i class="fas fa-play-circle"></i>gimy劇迷
-          </a>
-         {%endif%}
-         {% if url['duck']: %}
-          <a href="{{ url['duck'] }}" class="platform-link">
-            <i class="fas fa-play-circle"></i>小鴨影音
-          </a>
-         {%endif%}
-
+          {% if url['gimy'] %}
+            <a href="{{ url['gimy'] }}" class="platform-link">
+              <i class="fas fa-play-circle"></i>gimy劇迷
+            </a>
+          {% endif %}
+          {% if url['duck'] %}
+            <a href="{{ url['duck'] }}" class="platform-link">
+              <i class="fas fa-play-circle"></i>小鴨影音
+            </a>
+          {% endif %}
         </div>
       </div>
     </div>
 
     <!-- 留言板區域 -->
-    <div class="comments-section">
-  <h2 class="comments-title">
-    <i class="fas fa-comments"></i>留言板
-  </h2>
-
-    {% if current_user.is_authenticated %}
     <!-- 登入使用者的留言表單 -->
-    <form action="{{ url_for('main.comment') }}" method="POST" class="comment-form">
-      <input type="hidden" name="movie" value="{{ result.title }}">
-      <input type="hidden" name="url" value="{{ url['gimy'] or url['friday'] }}">
-      <input type="hidden" name="pic" value="{{ result.pic }}">
-      <textarea name="content" id="commentText" placeholder="分享您對這部影片的想法..." required></textarea>
-      <button type="submit">
-        <i class="fas fa-paper-plane"></i>發布留言
-      </button>
-    </form>
-  {% else %}
-    <!-- 尚未登入提示 -->
-    <div class="login-prompt show" id="loginPrompt">
-      <i class="fas fa-info-circle"></i>請先登入才能發表留言
-    </div>
-  {% endif %}
+    <div class="comments-section">
+      <form action="{{ url_for('main.comment') }}" method="POST">
+        <input type="hidden" name="next" value="search_result">
+        <input type="hidden" name="url" value="{{ request.form.get('url') }}">
+        <input type="hidden" name="pic" value="{{ request.form.get('pic') }}">
+        <input type="hidden" name="title" value="{{ request.form.get('title') }}">
+        <div class="comment-form">
+          <!-- 已設定留言區required不能為空 -->
+          <textarea name="content" id="commentText" placeholder="分享您對這部影片的想法..." required></textarea>
+          <button type="submit">
+            <i class="fas fa-paper-plane"></i>發布留言
+          </button>
+        </div>
+      </form>
+      <h2 class="comments-title">
+        <i class="fas fa-comments"></i>留言板
+      </h2>
 
-      <!-- 登入提示 -->
-      <!--{% if not is_authenticated %}
-      <div class="login-prompt show" id="loginPrompt">
-        <i class="fas fa-info-circle"></i>請先登入才能發表留言
-      </div>
-      {% endif %} -->
+      {% if not current_user.is_authenticated %}
+        <div class="login-prompt show" id="loginPrompt">
+          <i class="fas fa-info-circle"></i>請先登入才能發表留言
+        </div>
+      {% endif %}
 
-      <!--<div class="comment-form">
-        <textarea id="commentText" placeholder="分享您對這部影片的想法..."></textarea>
-        <button type="button" id="submitComment">
-          <i class="fas fa-paper-plane"></i>發布留言
-        </button>
-      </div>-->
 
       <!-- 沒有留言時的提示 -->
       {% if comments|length == 0 %}
-      <div class="comments-placeholder">
-        <i class="fas fa-comment-dots"></i>
-        <p>目前還沒有留言，成為第一個留言的人吧！</p>
-      </div>
-      {% else %}
-      <div class="comments-list show">
-      {% for comment in comments %}
-        <div class="comment-item">
-          <div class="comment-header">
-            <span class="comment-author">{{ comment.author.user_id }}</span>
-            <span class="comment-time">{{ comment.time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
-          </div>
-          <div class="comment-content">{{ comment.content }}</div>
+        <div class="comments-placeholder">
+          <i class="fas fa-comment-dots"></i>
+          <p>目前還沒有留言，成為第一個留言的人吧！</p>
         </div>
-      {% endfor %}
-      </div>
+      {% else %}
+        <div class="comments-list show">
+          {% for comment in comments %}
+            <div class="comment-item">
+              <div class="comment-header">
+                <span class="comment-author">{{ comment.author.user_id }}</span>
+                <span class="comment-time">{{ comment.time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+              </div>
+              <div class="comment-content">{{ comment.content }}</div>
+            </div>
+          {% endfor %}
+        </div>
       {% endif %}
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector('form[action="/comment"]');
+        const isAuthenticated = {{ 'true' if current_user.is_authenticated else 'false' }};
+
+        form.addEventListener("submit", function (e) {
+          if (!isAuthenticated) {
+            alert("請先登入才能發表留言！");
+          }
+        });
+      });
+    </script>
   </div>
 </body>
 </html>

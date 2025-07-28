@@ -1,12 +1,14 @@
 # routes/main.py
 # 首頁、搜尋、結果頁邏輯
-from flask import Blueprint, render_template, request, redirect,url_for,flash
+from flask import Blueprint, render_template, request, redirect,url_for,flash, session
 from utils.site_crawler import gimyWeb, gimyNextWeb, duckWeb, fridayWeb, fridayNextWeb, youtubWeb,storeTodb,checkDB
 from flask_login import login_required, current_user
 from utils.netflix import netflixWeb
 # 引用使用者資料
 from models import Comment, User_info
 from extensions import db
+from sqlalchemy.exc import SQLAlchemyError
+
 
 main_bp = Blueprint("main", __name__)
 
@@ -66,31 +68,36 @@ def search_result():
             storeTodb(target,result_data,url_sources)
         else:
             result_data, url_sources=checkDB(target)
-        return render_template("search_result.html", result=result_data, url=url_sources)
+            # print(result_data)
+            # print(url_sources)
+
+        # 加入留言資料查詢
+        comments = Comment.query.filter_by(movie=target.strip()).order_by(Comment.time.desc()).all()
+
+        return render_template("search_result.html", result=result_data, url=url_sources, comments=comments)
     return redirect(url_for("main.search"))
 
 @main_bp.route("/comment", methods=["POST"])
-@login_required
 def comment():
-    movie = request.form.get("movie")
-    content = request.form.get("content")
+    title = request.form.get("title")
     url = request.form.get("url")
     pic = request.form.get("pic")
+    content = request.form.get("content")
 
-    if not content.strip():
-        flash("留言不得為空")
-        return redirect(url_for("main.search_result", title=movie, url=url, pic=pic))
+    if not current_user.is_authenticated:
+        session["next"] = request.form.get("next")
+        session["title"] = title
+        session["url"] = url
+        session["pic"] = pic
+        session["content"] = content
+        return redirect(url_for("auth.login"))
 
-    # 根據 current_user.id 取得 User_info
-    user = User_info.query.filter_by(user_id=current_user.get_id()).first()
+    try:
+        # 加入留言資料表
+        new_comment = Comment(movie=title, content=content, author=current_user.id)
+        db.session.add(new_comment)
+        db.session.commit()
+    except SQLAlchemyError as e:
+        flash(f"資料庫錯誤，請稍後再試：{str(e)}")
 
-    if not user:
-        flash("使用者資料錯誤")
-        return redirect(url_for("main.search_result", title=movie, url=url, pic=pic))
-
-    new_comment = Comment(movie=movie, content=content, author=user)
-    db.session.add(new_comment)
-    db.session.commit()
-
-    flash("留言成功")
-    return redirect(url_for("main.search_result", title=movie, url=url, pic=pic))
+    return render_template("post_redirect.html", action=url_for("main.search_result"), title=title, url=url, pic=pic)

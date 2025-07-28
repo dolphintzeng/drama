@@ -149,17 +149,23 @@
 <body>
   <!-- 登入 / 登出按鈕 - 固定在右上角 -->
   {% if current_user.is_authenticated %}
-    <button class="login-btn" onclick="location.href='{{ url_for("auth.logout") }}'">
-      你好，{{ current_user.name }}<br>
-      <i class="fas fa-sign-out"></i>登出
-    </button>
+    <form action="{{ url_for('auth.logout') }}" method="POST">
+      <input type="hidden" name="next" value="{{ request.url }}">
+      <button type="submit" class="login-btn">
+        你好，{{ current_user.name }}<br>
+        <i class="fas fa-sign-out"></i>登出
+      </button>
+    </form>
   {% else %}
-    <button class="login-btn" onclick="location.href='{{ url_for("auth.login", next=request.url) }}'">
-      <i class="fas fa-user"></i>登入
-    </button>
+    <form action="{{ url_for('auth.prelogin') }}" method="POST">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button type="submit" class="login-btn">
+        <i class="fas fa-user"></i>登入
+      </button>
+    </form>
   {% endif %}
   <!-- 透過request.endpoint就可以取得最後請求的function名，此處為main.home -->
-  <!-- 透過request.url則可以當前完整url包含參數 -->
+  <!-- 透過request.url則可以當前完整url包含參數，request.path則是單純的route -->
 
   <div class="container">
     <!-- 中間的攝影機圖示 -->
