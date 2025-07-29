@@ -8,7 +8,8 @@ import requests
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from extensions import db
-from models import Search_result,Url_resource
+from models import Search_result
+from sqlalchemy.exc import IntegrityError,OperationalError
 
 @contextmanager
 def browser_context():
@@ -118,7 +119,6 @@ def youtubWeb(target):
     return final_url
 
 def storeTodb(target,result_data,url_sources):
-    print("===============================",target)
     key = Search_result.query.filter_by(keyword=target).first()
     if not key:
         new_keyword = Search_result(
@@ -126,21 +126,26 @@ def storeTodb(target,result_data,url_sources):
                         title=result_data["title"],
                         content=result_data["content"],
                         pic_url=result_data["pic"],
-                        yt=result_data["yt"]
+                        yt=result_data["yt"],
+                        gimy = url_sources["gimy"],
+                        friday = url_sources["friday"],
+                        duck = url_sources["duck"],
+                        netflix = url_sources["netflix"]
                     )
-        db.session.add(new_keyword)
-        db.session.commit()
-
-        new_Url = Url_resource(
-                    keyword = target,
-                    gimy = url_sources["gimy"],
-                    friday = url_sources["friday"],
-                    duck = url_sources["duck"],
-                    netflix = url_sources["netflix"]
-                    )
-        db.session.add(new_Url)
-        db.session.commit()
-
+        try:
+            db.session.add(new_keyword)
+            db.session.commit()
+            return "success"
+        except IntegrityError:
+            db.session.rollback()
+            return "error_duplicate"
+        except OperationalError:
+            db.session.rollback()
+            return "error_DB_Link_Syntax"
+        except Exception as e:
+            db.session.rollback()
+            return "error_DB"
+    
 def checkDB(target):
     searchResult = Search_result.query.filter_by(keyword=target).first()
     if searchResult:
@@ -150,15 +155,12 @@ def checkDB(target):
             "pic": searchResult.pic_url,
             "yt": searchResult.yt
         }
-
-        urlResult = Url_resource.query.filter_by(keyword=target).first()
-        if urlResult:
-            DB_url_sources = {
-                "gimy": urlResult.gimy,
-                "friday": urlResult.friday,
-                "duck": urlResult.duck,
-                "netflix": urlResult.netflix
-            }
+        DB_url_sources = {
+            "gimy": searchResult.gimy,
+            "friday": searchResult.friday,
+            "duck": searchResult.duck,
+            "netflix": searchResult.netflix
+        }
         return DB_result_data,DB_url_sources
     else:
         return None

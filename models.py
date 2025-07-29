@@ -25,12 +25,9 @@ class Search_result(db.Model):
     keyword = db.Column(db.String(50), primary_key=True, index=True, nullable=False)
     title = db.Column(db.String(50), nullable=False)
     content = db.Column(db.String(300), nullable=True)
-    pic_url = db.Column(db.String(200), nullable=True, unique=True)
-    yt = db.Column(db.String(200), nullable=True, unique=True)
-
-class Url_resource(db.Model):
-    keyword = db.Column(db.String(50), primary_key=True, index=True)
-    gimy = db.Column(db.String(200), nullable=True, unique=True)
-    friday = db.Column(db.String(200), nullable=True, unique=True)
-    duck = db.Column(db.String(200), nullable=True, unique=True)
+    pic_url = db.Column(db.String(200), nullable=True)
+    yt = db.Column(db.String(200), nullable=True)
+    gimy = db.Column(db.String(200), nullable=True)
+    friday = db.Column(db.String(200), nullable=True)
+    duck = db.Column(db.String(200), nullable=True)
     netflix = db.Column(db.String(200), nullable=True)

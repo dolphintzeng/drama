@@ -74,9 +74,7 @@ def login():
                     db.session.rollback()
                     flash(f"資料庫錯誤，請稍後再試：{str(e)}")
                 #redirect只能以GET傳參數，改成導向模板搭配JS以POST傳參數
-                return render_template("post_redirect.html", action=next, key=key, title=title, url=url, pic=pic)
-            else:
-                return redirect(url_for("main.index"))
+            return render_template("post_redirect.html", action=next, key=key, title=title, url=url, pic=pic)
     return render_template("login.html", form=form)
 
 @auth_bp.route("/register", methods=["GET", "POST"])

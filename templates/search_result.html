@@ -660,7 +660,7 @@
     <!-- 登入使用者的留言表單 -->
     <div class="comments-section">
       <form action="{{ url_for('main.comment') }}" method="POST">
-        <input type="hidden" name="next" value="search_result">
+        <input type="hidden" name="next" value="{{ request.path }}">
         <input type="hidden" name="url" value="{{ request.form.get('url') }}">
         <input type="hidden" name="pic" value="{{ request.form.get('pic') }}">
         <input type="hidden" name="title" value="{{ request.form.get('title') }}">

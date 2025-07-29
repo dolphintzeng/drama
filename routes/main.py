@@ -12,7 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 main_bp = Blueprint("main", __name__)
 
-@main_bp.route("/")
+@main_bp.route("/", methods=["POST", "GET"])
 def index():
     return render_template("home.html")
 
@@ -65,7 +65,9 @@ def search_result():
                 "duck": duckWeb(target),
                 "netflix": netflix_url
             }
-            storeTodb(target,result_data,url_sources)
+            error=storeTodb(target,result_data,url_sources)
+            if error !='success':
+                flash(error)
         else:
             result_data, url_sources=checkDB(target)
             # print(result_data)
@@ -94,7 +96,7 @@ def comment():
 
     try:
         # 加入留言資料表
-        new_comment = Comment(movie=title, content=content, author=current_user.id)
+        new_comment = Comment(movie=title, content=content, author_id=current_user.id)
         db.session.add(new_comment)
         db.session.commit()
     except SQLAlchemyError as e:
