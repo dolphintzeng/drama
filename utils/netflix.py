@@ -1,4 +1,6 @@
 
+import logging
+logger = logging.getLogger(__name__) #記錄出錯的程式檔名
 
 def netflixWeb(target):
     from selenium.webdriver.common.by import By
@@ -13,6 +15,7 @@ def netflixWeb(target):
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
 
+    href = ""
     try:
         driver = uc.Chrome(options=options)
 
@@ -29,27 +32,18 @@ def netflixWeb(target):
                     EC.presence_of_element_located((By.TAG_NAME, "h3"))
                 )
                 title = title_element.text
-                if target in title:
+                if title and target in title: # 防止title為None
                     href = link.get_attribute("href")
-                    return href
+                    if href:
+                        break
             except Exception:
                 continue
-        return None
-
     except Exception as e:
-        print(f"[netflixWeb] 發生錯誤：{e}")
-        return None
+         logger.error(f"netflixWeb 搜尋 '{target}' 時發生錯誤: {type(e).__name__}: {str(e)}", exc_info=True)
+         return None
     finally:
         try:
             driver.quit()
         except:
             pass
-
-
-if __name__ == "__main__":
-    target_name = input()
-    result_url = netflixWeb(target_name)
-    if result_url:
-        print(f"找到 Netflix 連結: {result_url}")
-    else:
-        print("找不到符合條件的 Netflix 連結") 
+    return href

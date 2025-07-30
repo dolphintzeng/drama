@@ -10,6 +10,9 @@ from models import User_info, Comment
 from forms import LoginForm, RegisterForm
 from utils.user_helper import generate_token, current_timestamp, send_mail
 
+import logging
+logger = logging.getLogger(__name__) #記錄出錯的程式檔名
+
 auth_bp = Blueprint("auth", __name__) #表示 Blueprint名 為"auth"
 
 class User(UserMixin): #因登入時要在各地方顯示user.name，故調整起始函數
@@ -26,9 +29,15 @@ def user_loader(user_id):
     return None
 
 def clean_pending_users():
-    current_time = current_timestamp()
-    User_info.query.filter(User_info.created_at < current_time - 600).delete()
-    db.session.commit()
+    try:
+        current_time = current_timestamp()
+        User_info.query.filter(User_info.created_at < current_time - 600).delete()
+        db.session.commit()
+        return True
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"資料庫操作錯誤: {str(e)}", exc_info=True)
+        return False
 
 @auth_bp.route("/prelogin", methods=["POST"]) #因為直接POST跳轉到login會觸發驗證錯誤
 def prelogin():
@@ -73,6 +82,7 @@ def login():
                 except SQLAlchemyError as e:
                     db.session.rollback()
                     flash(f"資料庫錯誤，請稍後再試：{str(e)}")
+                    logger.error(f"資料庫操作錯誤: {str(e)}", exc_info=True)
                 #redirect只能以GET傳參數，改成導向模板搭配JS以POST傳參數
             return render_template("post_redirect.html", action=next, key=key, title=title, url=url, pic=pic)
     return render_template("login.html", form=form)
@@ -81,27 +91,38 @@ def login():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        clean_pending_users()
+        if not clean_pending_users():
+            flash("系統忙碌，請稍後再試")
+            return redirect(url_for("auth.register"))
         user = User_info.query.filter_by(user_id=form.user_id.data).first()
         if user:
             if user.verified:
-                flash("帳號已註冊，請直接登入")
-                return render_template(url_for("auth.login"))
+                # 已驗證的帳號，不允許重新註冊
+                flash("此帳號已存在，請選擇其他帳號！")
+                return render_template("register.html", form=form)
             else:
-                flash("此帳號尚未完成驗證，我們已重新發送驗證信")
-                user.token = generate_token()
-                user.created_at = current_timestamp()
-                db.session.commit()
-                send_mail(
-                    subject="重新發送驗證信",
-                    sender="tom1835566@gmail.com",
-                    recipients=[user.email],
-                    template="verification_email",
-                    user_name=user.name,
-                    verify_url=url_for("auth.verify", token=user.token, _external=True)
-                )
-                session["pending_user"] = user.user_id
-                return redirect(url_for("auth.message"))
+                # 未驗證的帳號，檢查其他資訊是否一致
+                if (user.email == form.email.data and
+                    user.name == form.name.data and
+                    check_password_hash(user.password, form.password.data)):
+                    flash("此帳號尚未完成驗證，我們已重新發送驗證信")
+                    user.token = generate_token()
+                    user.created_at = current_timestamp()
+                    db.session.commit()
+                    send_mail(
+                        subject="重新發送驗證信",
+                        sender="tom1835566@gmail.com",
+                        recipients=[user.email],
+                        template="verification_email",
+                        user_name=user.name,
+                        verify_url=url_for("auth.verify", token=user.token, _external=True)
+                    )
+                    session["pending_user"] = user.user_id
+                    return redirect(url_for("auth.message"))
+                else:
+                    # 資訊不一致，當作不同人嘗試使用已存在帳號
+                    flash("此帳號已存在，請選擇其他帳號！")
+                    return render_template("register.html", form=form)
 
         user_by_email = User_info.query.filter_by(email=form.email.data).first() #主動檢查email可以提升程式效率、更好的使用者體驗
         if user_by_email:
@@ -136,12 +157,14 @@ def register():
             session["pending_user"] = form.user_id.data
             flash("驗證信已發送，請在10分鐘內完成註冊！")
             return redirect(url_for("auth.message"))
-        except IntegrityError: #models有設定user_id與email有唯一性，故建立此例外處理告知使用者資料重複，但主要用於處理「異常」情況
+        except IntegrityError as e: #models有設定user_id與email有唯一性，故建立此例外處理告知使用者資料重複，但主要用於處理「異常」情況
             db.session.rollback()
             flash("帳號或Email已存在，請選擇其他帳號或Email！")
+            logger.error(f"資料庫重複鍵錯誤: {str(e)}", exc_info=True)
         except SQLAlchemyError as e:
             db.session.rollback()
             flash(f"資料庫錯誤，請稍後再試：{str(e)}")
+            logger.error(f"資料庫操作錯誤: {str(e)}", exc_info=True)
     return render_template("register.html", form=form)
 
 @auth_bp.route("/message") #註冊後頁面，顯示email資訊給使用者確認並提醒收信

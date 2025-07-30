@@ -21,8 +21,8 @@ class Comment(db.Model):
     author_id = db.Column(db.String(100), db.ForeignKey("user_info.user_id"), nullable=False) #此處user_info.user_id指的是資料表名稱，預測為小寫
     author = db.relationship("User_info", backref="comments") #透過Comment.author就可以取得User_info資料，反之User_info.comments
 
-class Search_result(db.Model):
-    keyword = db.Column(db.String(50), primary_key=True, index=True, nullable=False)
+class Search_result(db.Model):#利用SQLAlchemy ORM 的技術 建立查詢結果的資料表 
+    keyword = db.Column(db.String(50), primary_key=True, index=True, nullable=False) # 這個欄位不得為空值，且設為主鍵不能重覆
     title = db.Column(db.String(50), nullable=False)
     content = db.Column(db.String(300), nullable=True)
     pic_url = db.Column(db.String(200), nullable=True)

@@ -9,6 +9,8 @@ from models import Comment, User_info
 from extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 
+import logging
+logger = logging.getLogger(__name__) #記錄出錯的程式檔名
 
 main_bp = Blueprint("main", __name__)
 
@@ -43,7 +45,7 @@ def search_result():
                     title, content = result
                 gimy = url
                 friday_result = fridayWeb(target)
-                friday = friday_result[0]["url"] if friday_result else None
+                friday = friday_result[0]["url"] if friday_result else ""
 
             elif "friday" in url:
                 result = fridayNextWeb(url)
@@ -67,11 +69,9 @@ def search_result():
             }
             error=storeTodb(target,result_data,url_sources)
             if error !='success':
-                flash(error)
+                print(error)
         else:
             result_data, url_sources=checkDB(target)
-            # print(result_data)
-            # print(url_sources)
 
         # 加入留言資料查詢
         comments = Comment.query.filter_by(movie=target.strip()).order_by(Comment.time.desc()).all()
@@ -101,5 +101,5 @@ def comment():
         db.session.commit()
     except SQLAlchemyError as e:
         flash(f"資料庫錯誤，請稍後再試：{str(e)}")
-
+        logger.error(f"資料庫操作錯誤: {str(e)}", exc_info=True)
     return render_template("post_redirect.html", action=url_for("main.search_result"), title=title, url=url, pic=pic)

@@ -5,8 +5,9 @@ import time
 from flask import render_template
 from flask_mail import Message
 from extensions import mail
-import logging # 記錄應用程式的運行狀態、錯誤和其他重要事件
-logging.basicConfig(level=logging.INFO) # DEBUG < INFO < WARNING < ERROR < CRITICAL，這裡表示INFO等級以上的訊息會被記錄
+
+import logging
+logger = logging.getLogger(__name__)
 
 def generate_token():
     return str(uuid.uuid4())
@@ -21,5 +22,5 @@ def send_mail(subject, sender, recipients, template, **kwargs):
         mail.send(msg)
         return {"success": True, "error": None}
     except Exception as e:
-        logging.error(f"Error sending email: {e}") # 將錯誤訊息記錄起來
+        logger.error(f"Error sending email: {e}", exc_info=True) # 將錯誤訊息記錄起來
         return {"success": False, "error": str(e)}
